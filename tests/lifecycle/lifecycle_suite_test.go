@@ -42,7 +42,8 @@ var _ = BeforeSuite(func() {
 	}, lifecycleparameters.WaitingTime, lifecycleparameters.RetryInterval*time.Second).Should(BeTrue())
 
 	By("Validate that all nodes are ready")
-	err := nodes.WaitForNodesReady(globalhelper.APIClient, lifecycleparameters.WaitingTime, lifecycleparameters.RetryInterval)
+	err := nodes.WaitForNodesReady(globalhelper.APIClient,
+		lifecycleparameters.WaitingTime, lifecycleparameters.RetryInterval)
 	Expect(err).ToNot(HaveOccurred())
 
 	By("Create namespace")
