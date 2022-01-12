@@ -19,7 +19,7 @@ var _ = Describe("lifecycle lifecycle-container-shutdown", func() {
 		Expect(err).ToNot(HaveOccurred())
 	})
 
-	//47311
+	// 47311
 	It("One deployment, one pod with one container that has preStop field configured", func() {
 
 		By("Define deployment with preStop field configured")
