@@ -1,4 +1,4 @@
-package lifecycleparameters
+package lifeparameters
 
 import (
 	"fmt"
@@ -20,8 +20,14 @@ var (
 		"app":                  "test",
 	}
 	LifecycleTestSuiteName  = "lifecycle"
-	SkipAllButShutdownRegex = "lifecycle-pod-high-availability|lifecycle-pod-scheduling" +
+	SkipAllButShutdownRegex = "lifecycle-pod-high-availability lifecycle-pod-scheduling" +
+		" lifecycle-pod-termination-grace-period lifecycle-pod-owner-type" +
+		" lifecycle-pod-recreation lifecycle-scaling lifecycle-image-pull-policy"
+
+	SkipAllButScalingRegex = "lifecycle-pod-high-availability|lifecycle-pod-scheduling" +
 		"|lifecycle-pod-termination-grace-period|lifecycle-pod-owner-type" +
-		"|lifecycle-pod-recreation|lifecycle-scaling|lifecycle-image-pull-policy"
+		"|lifecycle-pod-recreation|lifecycle-container-shutdown|lifecycle-image-pull-policy"
+
 	ShutdownDefaultName = "lifecycle lifecycle-container-shutdown"
+	ScalingDefaultName  = "lifecycle lifecycle-scaling"
 )

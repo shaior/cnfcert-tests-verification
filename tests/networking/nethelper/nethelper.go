@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/test-network-function/cnfcert-tests-verification/tests/globalparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/networking/netparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/deployment"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/rbac"
@@ -20,25 +19,6 @@ import (
 	v1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-func isDeploymentReady(operatorNamespace string, deploymentName string) (bool, error) {
-	testDeployment, err := globalhelper.APIClient.Deployments(operatorNamespace).Get(
-		context.Background(),
-		deploymentName,
-		metav1.GetOptions{},
-	)
-	if err != nil {
-		return false, err
-	}
-
-	if testDeployment.Status.ReadyReplicas > 0 {
-		if testDeployment.Status.Replicas == testDeployment.Status.ReadyReplicas {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
 
 func isDaemonSetReady(operatorNamespace string, daemonSetName string) (bool, error) {
 	daemonSet, err := globalhelper.APIClient.DaemonSets(operatorNamespace).Get(
@@ -77,31 +57,6 @@ func defineDeploymentBasedOnArgs(replicaNumber int32, privileged bool, label map
 	return deploymentStruct
 }
 
-// CreateAndWaitUntilDeploymentIsReady creates deployment and wait until all deployment replicas are up and running.
-func CreateAndWaitUntilDeploymentIsReady(deployment *v1.Deployment, timeout time.Duration) error {
-	runningDeployment, err := globalhelper.APIClient.Deployments(deployment.Namespace).Create(
-		context.Background(),
-		deployment,
-		metav1.CreateOptions{})
-	if err != nil {
-		return err
-	}
-
-	Eventually(func() bool {
-		status, err := isDeploymentReady(runningDeployment.Namespace, runningDeployment.Name)
-		if err != nil {
-			glog.V(5).Info(fmt.Sprintf(
-				"deployment %s is not ready, retry in 5 seconds", runningDeployment.Name))
-
-			return false
-		}
-
-		return status
-	}, timeout, 5*time.Second).Should(Equal(true), "Deployment is not ready")
-
-	return nil
-}
-
 // CreateAndWaitUntilDaemonSetIsReady creates daemonSet and wait until all deployment replicas are up and running.
 func CreateAndWaitUntilDaemonSetIsReady(daemonSet *v1.DaemonSet, timeout time.Duration) error {
 	runningDaemonSet, err := globalhelper.APIClient.DaemonSets(daemonSet.Namespace).Create(
@@ -127,72 +82,18 @@ func CreateAndWaitUntilDaemonSetIsReady(daemonSet *v1.DaemonSet, timeout time.Du
 	return nil
 }
 
-// ValidateIfReportsAreValid test if report is valid for given test case.
-func ValidateIfReportsAreValid(tcName string, tcExpectedStatus string) error {
-	glog.V(5).Info("Verify test case status in Junit report")
-
-	junitTestReport, err := globalhelper.OpenJunitTestReport()
-
-	if err != nil {
-		return err
-	}
-
-	claimReport, err := globalhelper.OpenClaimReport()
-
-	if err != nil {
-		return err
-	}
-
-	err = globalhelper.IsExpectedStatusParamValid(tcExpectedStatus)
-
-	if err != nil {
-		return err
-	}
-
-	isTestCaseInValidStatusInJunitReport := globalhelper.IsTestCasePassedInJunitReport
-	isTestCaseInValidStatusInClaimReport := globalhelper.IsTestCasePassedInClaimReport
-
-	if tcExpectedStatus == globalparameters.TestCaseFailed {
-		isTestCaseInValidStatusInJunitReport = globalhelper.IsTestCaseFailedInJunitReport
-		isTestCaseInValidStatusInClaimReport = globalhelper.IsTestCaseFailedInClaimReport
-	}
-
-	if tcExpectedStatus == globalparameters.TestCaseSkipped {
-		isTestCaseInValidStatusInJunitReport = globalhelper.IsTestCaseSkippedInJunitReport
-		isTestCaseInValidStatusInClaimReport = globalhelper.IsTestCaseSkippedInClaimReport
-	}
-
-	if !isTestCaseInValidStatusInJunitReport(junitTestReport, tcName) {
-		return fmt.Errorf("test case %s is not in expected %s state in junit report", tcName, tcExpectedStatus)
-	}
-
-	glog.V(5).Info("Verify test case status in claim report file")
-
-	testPassed, err := isTestCaseInValidStatusInClaimReport(tcName, *claimReport)
-
-	if err != nil {
-		return err
-	}
-
-	if !testPassed {
-		return fmt.Errorf("test case %s is not in expected %s state in claim report", tcName, tcExpectedStatus)
-	}
-
-	return nil
-}
-
 // DefineAndCreateDeploymentOnCluster defines deployment resource and creates it on cluster.
 func DefineAndCreateDeploymentOnCluster(replicaNumber int32) error {
 	deploymentUnderTest := defineDeploymentBasedOnArgs(replicaNumber, false, nil)
 
-	return CreateAndWaitUntilDeploymentIsReady(deploymentUnderTest, netparameters.WaitingTime)
+	return globalhelper.CreateAndWaitUntilDeploymentIsReady(deploymentUnderTest, netparameters.WaitingTime)
 }
 
 // DefineAndCreatePrivilegedDeploymentOnCluster defines deployment resource and creates it on cluster.
 func DefineAndCreatePrivilegedDeploymentOnCluster(replicaNumber int32) error {
 	deploymentUnderTest := defineDeploymentBasedOnArgs(replicaNumber, true, nil)
 
-	return CreateAndWaitUntilDeploymentIsReady(deploymentUnderTest, netparameters.WaitingTime)
+	return globalhelper.CreateAndWaitUntilDeploymentIsReady(deploymentUnderTest, netparameters.WaitingTime)
 }
 
 // DefineAndCreateDeploymentWithSkippedLabelOnCluster defines deployment resource and creates it on cluster.
@@ -201,7 +102,7 @@ func DefineAndCreateDeploymentWithSkippedLabelOnCluster(replicaNumber int32) err
 		replicaNumber,
 		true,
 		netparameters.NetworkingTestSkipLabel)
-	err := CreateAndWaitUntilDeploymentIsReady(deploymentUnderTest, netparameters.WaitingTime)
+	err := globalhelper.CreateAndWaitUntilDeploymentIsReady(deploymentUnderTest, netparameters.WaitingTime)
 
 	if err != nil {
 		return err

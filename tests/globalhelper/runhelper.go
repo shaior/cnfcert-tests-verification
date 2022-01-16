@@ -12,6 +12,7 @@ import (
 
 func LaunchTests(testSuites []string, skipRegEx string) error {
 	containerEngine, err := container.SelectEngine()
+	fmt.Println("containerEngine = ", containerEngine)
 	if err != nil {
 		return err
 	}
@@ -24,7 +25,7 @@ func LaunchTests(testSuites []string, skipRegEx string) error {
 
 	glog.V(5).Info(fmt.Sprintf("container engine set to %s", containerEngine))
 	testArgs := []string{
-		"-s", skipRegEx,
+		// "-s", skipRegmakeEx,
 		"-k", os.Getenv("KUBECONFIG"),
 		"-t", Configuration.General.TnfConfigDir,
 		"-o", Configuration.General.TnfReportDir,
@@ -45,8 +46,12 @@ func LaunchTests(testSuites []string, skipRegEx string) error {
 	}
 
 	cmd := exec.Command(fmt.Sprintf("./%s", Configuration.General.TnfEntryPointScript))
+	fmt.Println("cmd = ", cmd)
 	cmd.Args = append(cmd.Args, testArgs...)
+	fmt.Println("cmd.Args = ", cmd.Args)
 	cmd.Dir = Configuration.General.TnfRepoPath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	return cmd.Run()
 }
