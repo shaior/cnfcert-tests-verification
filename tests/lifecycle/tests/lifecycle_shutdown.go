@@ -5,7 +5,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalhelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/globalparameters"
+	"github.com/test-network-function/cnfcert-tests-verification/tests/lifecycle/lifehelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/lifecycle/lifeparameters"
+	"github.com/test-network-function/cnfcert-tests-verification/tests/networking/nethelper"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/deployment"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/namespaces"
 )
@@ -22,22 +24,22 @@ var _ = Describe("lifecycle lifecycle-container-shutdown", func() {
 	It("One deployment, one pod with one container that has preStop field configured", func() {
 
 		By("Define deployment with preStop field configured")
-		preStopCommand := []string{"/bin/sh", "-c", "killall -0 tail"}
-		preStopDeploymentStruct := deployment.RedefineAllContainersWithPreStopSpec(deployment.DefineDeployment(
-			lifeparameters.LifecycleNamespace,
-			globalhelper.Configuration.General.TnfImage,
-			lifeparameters.TestDeploymentLabels), preStopCommand)
+		preStopDeploymentStruct := deployment.RedefineWithPreStopSpec(
+			lifehelper.DefineLifecycleDeployment(),
+			[]string{"/bin/sh", "-c", "killall -0 tail"})
+
 		err := globalhelper.CreateAndWaitUntilDeploymentIsReady(preStopDeploymentStruct, lifeparameters.WaitingTime)
 		Expect(err).ToNot(HaveOccurred())
 
 		By("Start lifecycle lifecycle-container-shutdown test")
 		err = globalhelper.LaunchTests(
 			[]string{lifeparameters.LifecycleTestSuiteName},
-			lifeparameters.SkipAllButShutdownRegex)
+			lifeparameters.SkipAllButShutdownRegex,
+		)
 		Expect(err).ToNot(HaveOccurred())
 
 		By("Verify test case status in Junit and Claim reports")
-		err = globalhelper.ValidateIfReportsAreValid(
+		err = nethelper.ValidateIfReportsAreValid(
 			lifeparameters.ShutdownDefaultName,
 			globalparameters.TestCasePassed)
 		Expect(err).ToNot(HaveOccurred())
@@ -48,12 +50,9 @@ var _ = Describe("lifecycle lifecycle-container-shutdown", func() {
 	It("One deployment, one pod with one container that does not have preStop field configured [negative]", func() {
 
 		By("Define deployment without prestop field configured")
-		deploymentStruct := deployment.DefineDeployment(
-			lifeparameters.LifecycleNamespace,
-			globalhelper.Configuration.General.TestImage,
-			lifeparameters.TestDeploymentLabels)
+		deploymentStructWithOutPreStop := lifehelper.DefineLifecycleDeployment()
 
-		err := globalhelper.CreateAndWaitUntilDeploymentIsReady(deploymentStruct, lifeparameters.WaitingTime)
+		err := globalhelper.CreateAndWaitUntilDeploymentIsReady(deploymentStructWithOutPreStop, lifeparameters.WaitingTime)
 		Expect(err).ToNot(HaveOccurred())
 
 		By("Start lifecycle lifecycle-container-shutdown test")
@@ -63,7 +62,7 @@ var _ = Describe("lifecycle lifecycle-container-shutdown", func() {
 		Expect(err).To(HaveOccurred())
 
 		By("Verify test case status in Junit and Claim reports")
-		err = globalhelper.ValidateIfReportsAreValid(
+		err = nethelper.ValidateIfReportsAreValid(
 			lifeparameters.ShutdownDefaultName,
 			globalparameters.TestCaseFailed)
 		Expect(err).ToNot(HaveOccurred())
@@ -227,4 +226,5 @@ var _ = Describe("lifecycle lifecycle-container-shutdown", func() {
 			globalparameters.TestCaseFailed)
 		Expect(err).ToNot(HaveOccurred())
 	})
+
 })
