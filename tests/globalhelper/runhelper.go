@@ -45,9 +45,10 @@ func LaunchTests(testSuites []string, skipRegEx string) error {
 		}
 	}
 
-	launchCmdArgs := []string{"-o", Configuration.General.TnfReportDir,
-		"-f", "lifecycle",
-		"-s", "lifecycle-pod-high-availability lifecycle-pod-scheduling lifecycle-scaling lifecycle-pod-termination-grace-period lifecycle-pod-owner-type lifecycle-container-shutdown lifecycle-image-pull-policy"}
+	argsString := fmt.Sprintf("-o %s ", Configuration.General.TnfReportDir) +
+		"-f lifecycle " +
+		"-s lifecycle-pod-high-availability lifecycle-pod-scheduling lifecycle-scaling lifecycle-pod-termination-grace-period lifecycle-pod-owner-type lifecycle-container-shutdown lifecycle-image-pull-policy"
+	launchCmdArgs := strings.Split(argsString, " ")
 
 	logrus.Infof("Args: %s", strings.Join(launchCmdArgs, " "))
 	cmd := exec.Command("/home/sobarzan/go/src/github.com/test-network-function/test-network-function/run-cnf-suites.sh", launchCmdArgs...)
