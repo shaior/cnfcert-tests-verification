@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/golang/glog"
+	"github.com/sirupsen/logrus"
 
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/container"
 )
@@ -43,10 +45,17 @@ func LaunchTests(testSuites []string, skipRegEx string) error {
 		}
 	}
 
-	cmd := exec.Command(fmt.Sprintf("./%s", Configuration.General.TnfEntryPointScript))
-	cmd.Args = append(cmd.Args, testArgs...)
-	cmd.Dir = Configuration.General.TnfRepoPath
+	launchCmdArgs := []string{"-o", Configuration.General.TnfReportDir,
+		"-f", "lifecycle",
+		"-s", "lifecycle-pod-high-availability lifecycle-pod-scheduling lifecycle-scaling lifecycle-pod-termination-grace-period lifecycle-pod-owner-type lifecycle-container-shutdown lifecycle-image-pull-policy"}
 
+	logrus.Infof("Args: %s", strings.Join(launchCmdArgs, " "))
+	cmd := exec.Command("/home/sobarzan/go/src/github.com/test-network-function/test-network-function/run-cnf-suites.sh", launchCmdArgs...)
+
+	// cmd := exec.Command(fmt.Sprintf("./%s", Configuration.General.TnfEntryPointScript))
+	// fmt.Println("cmd = ", cmd)
+	// cmd.Args = append(cmd.Args, testArgs...)
+	cmd.Dir = Configuration.General.TnfRepoPath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
