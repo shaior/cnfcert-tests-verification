@@ -2,6 +2,7 @@ package platformalteration
 
 import (
 	"flag"
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -43,16 +44,16 @@ var _ = BeforeSuite(func() {
 
 var _ = AfterSuite(func() {
 
-	// By(fmt.Sprintf("Remove %s namespace", parameters.PlatformAlterationNamespace))
-	// err := namespaces.DeleteAndWait(
-	// 	globalhelper.APIClient,
-	// 	parameters.PlatformAlterationNamespace,
-	// 	parameters.WaitingTime,
-	// )
-	// Expect(err).ToNot(HaveOccurred())
+	By(fmt.Sprintf("Remove %s namespace", parameters.PlatformAlterationNamespace))
+	err := namespaces.DeleteAndWait(
+		globalhelper.APIClient,
+		parameters.PlatformAlterationNamespace,
+		parameters.WaitingTime,
+	)
+	Expect(err).ToNot(HaveOccurred())
 
 	By("Remove reports from reports directory")
-	err := globalhelper.RemoveContentsFromReportDir()
+	err = globalhelper.RemoveContentsFromReportDir()
 	Expect(err).ToNot(HaveOccurred())
 
 })
