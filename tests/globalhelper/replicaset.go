@@ -37,6 +37,7 @@ func CreateAndWaitUntilReplicaSetIsReady(replicaSet *v1.ReplicaSet, timeout time
 	return nil
 }
 
+// isReplicaSetReady checks if a replicaset is ready.
 func isReplicaSetReady(namespace string, replicaSetName string) (bool, error) {
 	testReplicaSet, err := APIClient.ReplicaSets(namespace).Get(
 		context.Background(),

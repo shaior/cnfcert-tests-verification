@@ -6,11 +6,12 @@ import (
 	"runtime"
 	"testing"
 
-	. "github.com/onsi/ginkgo"
-	"github.com/onsi/ginkgo/reporters"
+	. "github.com/onsi/ginkgo/v2"
+	"github.com/onsi/ginkgo/v2/reporters"
+
+	"github.com/test-network-function/cnfcert-tests-verification/tests/platformalteration/platformalterationparameters"
 	_ "github.com/test-network-function/cnfcert-tests-verification/tests/platformalteration/tests"
 
-	"github.com/test-network-function/cnfcert-tests-verification/tests/platformalteration/parameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/namespaces"
 
 	. "github.com/onsi/gomega"
@@ -31,24 +32,24 @@ func TestPlatformAlteration(t *testing.T) {
 var _ = BeforeSuite(func() {
 
 	By("Create namespace")
-	err := namespaces.Create(parameters.PlatformAlterationNamespace, globalhelper.APIClient)
+	err := namespaces.Create(platformalterationparameters.PlatformAlterationNamespace, globalhelper.APIClient)
 	Expect(err).ToNot(HaveOccurred())
 
 	By("Define TNF config file")
 	err = globalhelper.DefineTnfConfig(
-		[]string{parameters.PlatformAlterationNamespace},
-		[]string{parameters.TestPodLabel},
+		[]string{platformalterationparameters.PlatformAlterationNamespace},
+		[]string{platformalterationparameters.TestPodLabel},
 		[]string{})
 	Expect(err).ToNot(HaveOccurred())
 })
 
 var _ = AfterSuite(func() {
 
-	By(fmt.Sprintf("Remove %s namespace", parameters.PlatformAlterationNamespace))
+	By(fmt.Sprintf("Remove %s namespace", platformalterationparameters.PlatformAlterationNamespace))
 	err := namespaces.DeleteAndWait(
 		globalhelper.APIClient,
-		parameters.PlatformAlterationNamespace,
-		parameters.WaitingTime,
+		platformalterationparameters.PlatformAlterationNamespace,
+		platformalterationparameters.WaitingTime,
 	)
 	Expect(err).ToNot(HaveOccurred())
 

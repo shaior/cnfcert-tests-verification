@@ -37,6 +37,7 @@ func CreateAndWaitUntilDaemonSetIsReady(daemonSet *v1.DaemonSet, timeout time.Du
 	return nil
 }
 
+// isDaemonSetReady checks if a daemonset is ready.
 func isDaemonSetReady(namespace string, name string) (bool, error) {
 	daemonSet, err := APIClient.DaemonSets(namespace).Get(
 		context.Background(),

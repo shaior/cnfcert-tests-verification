@@ -88,6 +88,7 @@ func CreateAndWaitUntilPodIsReady(pod *corev1.Pod, timeout time.Duration) error 
 	return nil
 }
 
+// isPodReady checks if a pod is ready.
 func isPodReady(namespace string, podName string) (bool, error) {
 	podObject, err := APIClient.Pods(namespace).Get(
 		context.Background(),

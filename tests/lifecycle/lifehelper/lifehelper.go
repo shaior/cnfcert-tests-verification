@@ -1,11 +1,11 @@
-package helper
+package lifehelper
 
 import (
 	"context"
 	"errors"
 	"time"
 
-	"github.com/test-network-function/cnfcert-tests-verification/tests/lifecycle/parameters"
+	"github.com/test-network-function/cnfcert-tests-verification/tests/lifecycle/lifeparameters"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/cluster"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/daemonset"
 	"github.com/test-network-function/cnfcert-tests-verification/tests/utils/nodes"
@@ -32,9 +32,9 @@ func DefineDeployment(replica int32, containers int, name string) (*v1.Deploymen
 		deployment.RedefineWithReplicaNumber(
 			deployment.DefineDeployment(
 				name,
-				parameters.LifecycleNamespace,
+				lifeparameters.LifecycleNamespace,
 				globalhelper.Configuration.General.TestImage,
-				parameters.TestDeploymentLabels), replica),
+				lifeparameters.TestDeploymentLabels), replica),
 		containers-1,
 		globalhelper.Configuration.General.TestImage)
 
@@ -43,20 +43,20 @@ func DefineDeployment(replica int32, containers int, name string) (*v1.Deploymen
 
 func DefineReplicaSet(name string) *v1.ReplicaSet {
 	return replicaset.DefineReplicaSet(name,
-		parameters.LifecycleNamespace,
+		lifeparameters.LifecycleNamespace,
 		globalhelper.Configuration.General.TestImage,
-		parameters.TestDeploymentLabels)
+		lifeparameters.TestDeploymentLabels)
 }
 
 func DefineStatefulSet(name string) *v1.StatefulSet {
 	return statefulset.DefineStatefulSet(name,
-		parameters.LifecycleNamespace,
+		lifeparameters.LifecycleNamespace,
 		globalhelper.Configuration.General.TestImage,
-		parameters.TestDeploymentLabels)
+		lifeparameters.TestDeploymentLabels)
 }
 
 func DefinePod(name string) *corev1.Pod {
-	return pod.DefinePod(name, parameters.LifecycleNamespace,
+	return pod.DefinePod(name, lifeparameters.LifecycleNamespace,
 		globalhelper.Configuration.General.TestImage)
 }
 
@@ -77,8 +77,8 @@ func EnableMasterScheduling(scheduleable bool) error {
 
 func DefineDaemonSetWithImagePullPolicy(name string, image string, pullPolicy corev1.PullPolicy) *v1.DaemonSet {
 	return daemonset.RedefineWithImagePullPolicy(
-		daemonset.DefineDaemonSet(parameters.LifecycleNamespace, image,
-			parameters.TestDeploymentLabels, name), pullPolicy)
+		daemonset.DefineDaemonSet(lifeparameters.LifecycleNamespace, image,
+			lifeparameters.TestDeploymentLabels, name), pullPolicy)
 }
 
 // WaitUntilClusterIsStable validates that all nodes are schedulable, and in ready state.
@@ -88,10 +88,10 @@ func WaitUntilClusterIsStable() error {
 		Expect(err).ToNot(HaveOccurred())
 
 		return isClusterReady
-	}, parameters.WaitingTime, parameters.RetryInterval*time.Second).Should(BeTrue())
+	}, lifeparameters.WaitingTime, lifeparameters.RetryInterval*time.Second).Should(BeTrue())
 
 	err := nodes.WaitForNodesReady(globalhelper.APIClient,
-		parameters.WaitingTime, parameters.RetryInterval)
+		lifeparameters.WaitingTime, lifeparameters.RetryInterval)
 
 	return err
 }

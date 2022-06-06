@@ -37,6 +37,7 @@ func CreateAndWaitUntilStatefulSetIsReady(statefulSet *v1.StatefulSet, timeout t
 	return nil
 }
 
+// isStatefulSetReady checks if a statefulset is ready.
 func isStatefulSetReady(namespace string, statefulSetName string) (bool, error) {
 	testStatefulSet, err := APIClient.StatefulSets(namespace).Get(
 		context.Background(),
