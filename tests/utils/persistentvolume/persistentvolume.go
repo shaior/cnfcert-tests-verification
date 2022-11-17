@@ -31,7 +31,7 @@ func DefinePersistentVolume(pvName string, namespace string) *corev1.PersistentV
 				},
 			},
 			},
-			Capacity: corev1.ResourceList{corev1.ResourceStorage: resource.MustParse("10Gi")},
+			Capacity: corev1.ResourceList{corev1.ResourceStorage: resource.MustParse("5Gi")},
 		},
 	}
 }
