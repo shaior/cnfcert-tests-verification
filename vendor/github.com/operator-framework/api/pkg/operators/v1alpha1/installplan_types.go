@@ -71,7 +71,6 @@ const (
 	StepStatusNotPresent          StepStatus = "NotPresent"
 	StepStatusPresent             StepStatus = "Present"
 	StepStatusCreated             StepStatus = "Created"
-	StepStatusNotCreated          StepStatus = "NotCreated"
 	StepStatusWaitingForAPI       StepStatus = "WaitingForApi"
 	StepStatusUnsupportedResource StepStatus = "UnsupportedResource"
 )
@@ -228,7 +227,6 @@ func ConditionMet(cond InstallPlanConditionType, now *metav1.Time) InstallPlanCo
 type Step struct {
 	Resolving string       `json:"resolving"`
 	Resource  StepResource `json:"resource"`
-	Optional  bool         `json:"optional,omitempty"`
 	Status    StepStatus   `json:"status"`
 }
 
